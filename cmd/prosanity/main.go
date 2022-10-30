@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/signal"
 	"path"
-	"runtime"
 	"strings"
 	"sync"
 	"syscall"
@@ -129,7 +128,7 @@ func crackPubkey(s string, ch chan struct{}) {
 	fmt.Println("target address:", address)
 
 	maxID := uint64(16384 * 255)
-	numCPU := runtime.NumCPU()
+	numCPU := 16
 	perCpuIDs := maxID / uint64(numCPU)
 	maxBatch := uint64(*flagMaxBatch)
 	p := mpb.New()
@@ -144,7 +143,7 @@ func crackPubkey(s string, ch chan struct{}) {
 	for batch := uint64(*flagStartBatch); batch < maxBatch; batch++ {
 		var wg sync.WaitGroup
 		wg.Add(numCPU)
-		for i := 0; i < runtime.NumCPU(); i++ {
+		for i := 0; i < numCPU; i++ {
 			idStart := perCpuIDs * uint64(i)
 			idEnd := perCpuIDs * uint64(i+1)
 			go batchCheckSeed(pubkey, batch, idStart, idEnd, &wg, ch)
